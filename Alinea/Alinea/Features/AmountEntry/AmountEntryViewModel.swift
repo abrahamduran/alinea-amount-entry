@@ -30,6 +30,7 @@ public final class AmountEntryViewModel {
     public var showChips: Bool { input.isEmpty }
     public var canReview: Bool { input.canReview }
     public var isDecimalDisabled: Bool { input.isDecimalDisabled }
+    public var isBackspaceDisabled: Bool { input.isBackspaceDisabled }
 
     // MARK: Intents
 

@@ -25,6 +25,7 @@ public struct AmountInputModel: Equatable, Sendable {
 
     public var isEmpty: Bool { enteredText.isEmpty }
     public var isDecimalDisabled: Bool { enteredText.contains(".") }
+    public var isBackspaceDisabled: Bool { enteredText.isEmpty }
 
     /// Review CTA is enabled only when a positive amount has been entered.
     public var canReview: Bool {

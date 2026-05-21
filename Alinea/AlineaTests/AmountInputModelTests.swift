@@ -88,6 +88,15 @@ struct AmountInputModelTests {
         #expect(model.enteredText == "")
     }
 
+    @Test func backspaceDisabledMatchesEmptiness() {
+        var model = AmountInputModel()
+        #expect(model.isBackspaceDisabled)
+        model.append(digit: 5)
+        #expect(!model.isBackspaceDisabled)
+        model.backspace()
+        #expect(model.isBackspaceDisabled)
+    }
+
     @Test func backspaceRemovesLastChar() {
         var model = AmountInputModel()
         model.append(digit: 1)
