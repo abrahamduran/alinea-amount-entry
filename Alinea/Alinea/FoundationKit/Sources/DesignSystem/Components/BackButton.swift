@@ -30,5 +30,5 @@ public struct BackButton: View {
 #Preview {
     BackButton(action: {})
         .padding(40)
-        .background(Color.Background.screen)
+        .background(.backgroundScreen)
 }
