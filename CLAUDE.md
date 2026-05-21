@@ -79,3 +79,16 @@ When time is scarce, the plan's defer-order (§13) is authoritative:
 Drop first: MeshGradient experiment → SwiftUI AutomatedBadge (fall back to PNG) → extra UI tests → extra snapshot tests → a11y labels.
 
 **Never drop:** chips → Review transition polish, the 7 behavioral rules, the Allie glow (even simplified), color tokens, input-model unit tests, README.
+
+## Code Style
+
+### New Swift Files
+When creating new Swift files, always use this header template:
+```swift
+//
+//  {Filename}.swift
+//  {ProjectName}
+//
+//  Created by Abraham Duran on {Date, e.g., 29/1/26}.
+//
+```
