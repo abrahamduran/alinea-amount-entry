@@ -12,7 +12,7 @@
 
 import Foundation
 
-public enum AmountFormatter {
+public nonisolated enum AmountFormatter {
 
     /// Formats the raw input buffer for the amount display.
     /// Returns `""` for empty input — the View renders the `$0`

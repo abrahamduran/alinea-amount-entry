@@ -10,7 +10,7 @@
 
 import Foundation
 
-public struct AmountInputModel: Equatable, Sendable {
+public nonisolated struct AmountInputModel: Equatable, Sendable {
 
     /// Maximum decimal places allowed past the dot (per Ryan, May 20).
     public static let maxDecimalPlaces = 2

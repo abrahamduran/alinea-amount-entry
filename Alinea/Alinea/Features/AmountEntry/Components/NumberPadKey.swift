@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum NumberPadKey: Hashable, Sendable {
+public nonisolated enum NumberPadKey: Hashable, Sendable {
     case digit(Int)
     case decimal
     case backspace
