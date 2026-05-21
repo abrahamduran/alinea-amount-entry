@@ -38,7 +38,7 @@ public extension Color {
         public static let primary = Color(.Text.primary)
 
         /// Faded placeholder in the empty state (40% white).
-        public static let placeholder = Color(.Text.primary).opacity(0.40)
+        public static let placeholder = Color(.Text.primary).opacity(0.04)
 
         /// Dark text on the white Review button (#22212D).
         public static let inverse = Color(.Text.inverse)
