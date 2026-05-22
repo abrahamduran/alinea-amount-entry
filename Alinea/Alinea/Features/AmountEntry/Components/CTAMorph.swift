@@ -76,7 +76,7 @@ public struct CTAMorph: View {
                 review
             }
         }
-        .frame(height: 50)
+        .frame(height: 50, alignment: .center)
         .animation(spring.speed(0.6), value: showChips)
     }
 
@@ -95,7 +95,6 @@ public struct CTAMorph: View {
             // text widths ($500 vs $10,000) shift the HStack and the
             // return morph reads as "chip appears from the right."
             HStack(spacing: 12) {
-                Spacer()
                 chip(500)
                     .frame(maxWidth: .infinity)
                     .transition(sideTransition)
@@ -105,7 +104,6 @@ public struct CTAMorph: View {
                 chip(10_000)
                     .frame(maxWidth: .infinity)
                     .transition(sideTransition)
-                Spacer()
             }
 
         case .converge:

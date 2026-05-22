@@ -35,8 +35,8 @@ public struct AllieGlow: View {
     public init(
         style: Style = .angular,
         cornerRadius: CGFloat = 25,
-        innerBlur: CGFloat = 32,
-        outerBlur: CGFloat = 56,
+        innerBlur: CGFloat = 18,
+        outerBlur: CGFloat = 36,
         rotationSpeedDegPerSec: Double = 30,
         breathSpeedHz: Double = 1.5
     ) {
@@ -86,8 +86,11 @@ public struct AllieGlow: View {
                 .fill(
                     AngularGradient(
                         colors: [
-                            .Brand.gradientStart, .Brand.gradientEnd,
-                            .Brand.gradientStart, .Brand.gradientEnd,
+                            .Brand.gradientStart,   // magenta
+                            .Brand.gradientEnd,     // iris
+                            .Brand.gradientBlue,    // blue
+                            .Brand.gradientAccent,  // yellow
+                            .Brand.gradientStart,   // close the loop
                         ],
                         center: .center,
                         angle: angle
@@ -100,32 +103,64 @@ public struct AllieGlow: View {
         }
     }
 
-    /// 3×3 MeshGradient whose interior control points drift on
-    /// independent sine phases so the wash never repeats cleanly.
-    /// Corners stay pinned so the shape remains rectangular.
+    /// 3×3 MeshGradient whose edge midpoints AND center drift on
+    /// independent sine phases — irrational frequency ratios so the
+    /// wash never repeats cleanly. Corners stay pinned so the shape
+    /// remains rectangular.
     private func meshGradient(at t: TimeInterval, speedSign: Double) -> MeshGradient {
         let s = speedSign
-        let drift: (Double, Double) -> SIMD2<Float> = { phase, freq in
-            let x = 0.5 + 0.18 * sin(t * freq * s + phase)
-            let y = 0.5 + 0.18 * cos(t * freq * s + phase * 1.3)
+
+        // Drift a point around a base anchor by `amp` units. Phase and
+        // frequency are picked per call so each point follows its own
+        // orbit — the rationals avoid resonance, so no global cycle.
+        let drift: (Double, Double, Double, Double, Double) -> SIMD2<Float> = {
+            baseX, baseY, amp, phase, freq in
+            let x = baseX + amp * sin(t * freq * s + phase)
+            let y = baseY + amp * cos(t * freq * s + phase * 1.37)
             return SIMD2<Float>(Float(x), Float(y))
         }
 
-        let start: Color = .Brand.gradientStart
-        let end: Color = .Brand.gradientEnd
+        let palette: [Color] = [
+            .Brand.gradientStart,    // magenta
+            .Brand.gradientEnd,      // iris
+            .Brand.gradientBlue,     // blue
+            .Brand.gradientAccent,   // yellow
+        ]
+
+        // Pick a continuously-shifting color for each cell. `phase`
+        // offsets the cell's position in the palette so neighboring
+        // cells never sit on the same color simultaneously.
+        let cycleSpeed = 0.18
+        let color: (Double) -> Color = { phase in
+            let progress = (t * cycleSpeed * s + phase)
+                .truncatingRemainder(dividingBy: Double(palette.count))
+            let normalized = progress < 0 ? progress + Double(palette.count) : progress
+            let i = Int(normalized) % palette.count
+            let next = (i + 1) % palette.count
+            let blend = normalized - Double(i)
+            return palette[i].mix(with: palette[next], by: blend)
+        }
 
         return MeshGradient(
             width: 3,
             height: 3,
             points: [
-                SIMD2(0, 0),   SIMD2(0.5, 0),       SIMD2(1, 0),
-                SIMD2(0, 0.5), drift(0.0, 0.45),    SIMD2(1, 0.5),
-                SIMD2(0, 1),   SIMD2(0.5, 1),       SIMD2(1, 1),
+                SIMD2(0, 0),
+                drift(0.5, 0.0, 0.12, 0.0,  0.31),       // top edge
+                SIMD2(1, 0),
+
+                drift(0.0, 0.5, 0.10, 1.7,  0.27),       // left edge
+                drift(0.5, 0.5, 0.20, 0.0,  0.45),       // center (biggest swing)
+                drift(1.0, 0.5, 0.10, 3.4,  0.23),       // right edge
+
+                SIMD2(0, 1),
+                drift(0.5, 1.0, 0.12, 5.1,  0.37),       // bottom edge
+                SIMD2(1, 1),
             ],
             colors: [
-                start, end,   start,
-                end,   start, end,
-                start, end,   start,
+                color(0.0), color(0.5), color(1.0),
+                color(1.5), color(2.0), color(2.5),
+                color(3.0), color(3.5), color(0.25),
             ]
         )
     }

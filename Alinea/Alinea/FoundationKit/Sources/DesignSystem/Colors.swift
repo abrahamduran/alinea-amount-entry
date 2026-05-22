@@ -48,11 +48,17 @@ public extension Color {
 
     /// Brand-gradient stops used by the Review button halo and AUTOMATED badge stroke.
     enum Brand {
-        /// Gradient start (#B24DCC).
+        /// Magenta (#B24DCC) — `main/brand`.
         public static let gradientStart = Color(.Brand.gradientStart)
 
-        /// Gradient end (#8955F9).
+        /// Iris (#8955F9) — `strategies/st01`.
         public static let gradientEnd = Color(.Brand.gradientEnd)
+
+        /// Blue (#2073DF) — `strategies/st03`.
+        public static let gradientBlue = Color(.Brand.gradientBlue)
+
+        /// Yellow (#FFEE59) — `main/accent`.
+        public static let gradientAccent = Color(.Brand.gradientAccent)
     }
 }
 
@@ -80,6 +86,8 @@ public extension ShapeStyle where Self == Color {
     // MARK: Brand
     static var brandGradientStart: Color { Color.Brand.gradientStart }
     static var brandGradientEnd: Color { Color.Brand.gradientEnd }
+    static var brandGradientBlue: Color { Color.Brand.gradientBlue }
+    static var brandGradientAccent: Color { Color.Brand.gradientAccent }
 }
 
 // MARK: - Brand Gradient
