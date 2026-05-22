@@ -23,7 +23,10 @@ public struct QuickAmountChip: View {
             Text(label)
                 .typography(.chipLabel)
                 .foregroundStyle(.textPrimary)
-                .frame(width: 96, height: 44)
+                .fixedSize(horizontal: true, vertical: false)
+                .padding(.horizontal, 24)
+                .padding(.vertical, 12)
+                .frame(minWidth: 96)
                 .background(.backgroundChip, in: .capsule)
                 .contentShape(.capsule)
         }

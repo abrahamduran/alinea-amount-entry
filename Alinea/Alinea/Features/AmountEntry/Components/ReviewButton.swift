@@ -27,7 +27,9 @@ public struct ReviewButton: View {
             Text("Review")
                 .typography(.buttonLabel)
                 .foregroundStyle(.textInverse)
-                .frame(width: 345, height: 50)
+                .fixedSize(horizontal: true, vertical: false)
+                .padding(.vertical, 14)
+                .frame(maxWidth: .infinity)
                 .background(.backgroundButton, in: .capsule)
                 .shadow(color: .textPrimary.opacity(0.10), radius: 4.73)
                 .contentShape(.capsule)
@@ -43,6 +45,7 @@ public struct ReviewButton: View {
         ReviewButton(isEnabled: true) {}
         ReviewButton(isEnabled: false) {}
     }
+    .frame(width: 345)
     .padding(40)
     .background(.backgroundScreen)
 }

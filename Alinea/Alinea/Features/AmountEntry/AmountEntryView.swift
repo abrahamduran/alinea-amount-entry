@@ -15,7 +15,11 @@ import SwiftUI
 public struct AmountEntryView: View {
 
     @State private var vm = AmountEntryViewModel()
-    @Namespace private var morph
+
+    /// Flip this to A/B the three chips → Review transitions.
+    /// Pick the winner in `CTAMorph` Previews; drop the losing branches
+    /// before shipping so production ships one transition, not three.
+    private let ctaStyle: CTAMorphStyle = .centerMorph
 
     public init() {}
 
@@ -36,9 +40,17 @@ public struct AmountEntryView: View {
 
                 Spacer(minLength: 0)
 
-                ctaRow
-                    .frame(height: 50)
-                    .padding(.bottom, 24)
+                CTAMorph(
+                    style: ctaStyle,
+                    showChips: vm.showChips,
+                    canReview: vm.canReview,
+                    onChipTap: { vm.tap(quickAmount: $0) },
+                    onReview: {
+                        // Submit action — not part of this take-home.
+                    }
+                )
+                .padding(.horizontal, 24)
+                .padding(.bottom, 24)
 
                 NumberPad(
                     isDecimalDisabled: vm.isDecimalDisabled,
@@ -66,47 +78,6 @@ public struct AmountEntryView: View {
         }
     }
 
-    // MARK: CTA — chips ↔ Review
-
-    @ViewBuilder
-    private var ctaRow: some View {
-        ZStack {
-            if vm.showChips {
-                chipsRow
-            } else {
-                reviewRow
-            }
-        }
-        .animation(.spring(response: 0.45, dampingFraction: 0.82), value: vm.showChips)
-    }
-
-    private var chipsRow: some View {
-        HStack(spacing: 12) {
-            QuickAmountChip(amount: 500) { vm.tap(quickAmount: 500) }
-                .transition(.scale(scale: 0.85).combined(with: .opacity))
-
-            QuickAmountChip(amount: 2_000) { vm.tap(quickAmount: 2_000) }
-                .matchedGeometryEffect(id: Self.morphID, in: morph)
-
-            QuickAmountChip(amount: 10_000) { vm.tap(quickAmount: 10_000) }
-                .transition(.scale(scale: 0.85).combined(with: .opacity))
-        }
-    }
-
-    private var reviewRow: some View {
-        ZStack {
-            AllieGlow()
-                .frame(width: 345, height: 50)
-                .transition(.opacity.combined(with: .scale(scale: 0.85)))
-
-            ReviewButton(isEnabled: vm.canReview) {
-                // Submit action — not part of this take-home.
-            }
-            .matchedGeometryEffect(id: Self.morphID, in: morph)
-        }
-    }
-
-    private static let morphID = "primaryCTA"
 }
 
 #Preview {

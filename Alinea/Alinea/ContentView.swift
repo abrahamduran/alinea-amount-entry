@@ -6,10 +6,12 @@
 //
 
 import SwiftUI
+import DesignSystem
 
 struct ContentView: View {
+    
     var body: some View {
-        AmountEntryView()
+        ContentView()
     }
 }
 
