@@ -26,7 +26,8 @@ public struct QuickAmountChip: View {
                 .fixedSize(horizontal: true, vertical: false)
                 .padding(.horizontal, 24)
                 .padding(.vertical, 12)
-                .frame(minWidth: 96)
+                .frame(maxWidth: .infinity, minHeight: 44)
+                .glassEffect(.regular, in: .capsule)
                 .background(.backgroundChip, in: .capsule)
                 .contentShape(.capsule)
         }

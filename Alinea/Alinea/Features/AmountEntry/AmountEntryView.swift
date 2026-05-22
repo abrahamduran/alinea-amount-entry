@@ -16,11 +16,6 @@ public struct AmountEntryView: View {
 
     @State private var vm = AmountEntryViewModel()
 
-    /// Flip this to A/B the three chips → Review transitions.
-    /// Pick the winner in `CTAMorph` Previews; drop the losing branches
-    /// before shipping so production ships one transition, not three.
-    private let ctaStyle: CTAMorphStyle = .centerMorph
-
     public init() {}
 
     public var body: some View {
@@ -40,8 +35,7 @@ public struct AmountEntryView: View {
 
                 Spacer(minLength: 0)
 
-                CTAMorph(
-                    style: ctaStyle,
+                QuickAmountCTA(
                     showChips: vm.showChips,
                     canReview: vm.canReview,
                     onChipTap: { vm.tap(quickAmount: $0) },

@@ -16,7 +16,7 @@ struct AlineaApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            AmountEntryView()
         }
     }
 }

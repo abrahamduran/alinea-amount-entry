@@ -4,23 +4,11 @@
 //
 //  Created by Abraham Duran on 21/5/26.
 //
-//  The chips ↔ Review transition — Ryan's #1 ask. Three candidates
-//  ship side-by-side; pick a winner in Previews and inline the chosen
-//  closure into `AmountEntryView.ctaRow`. The losing variants come out
-//  before submission so production carries one transition, not three.
-//
 //  All variants share:
 //   • Same spring (response 0.45, dampingFraction 0.82) for a single
 //     choreography signature across the screen.
 //   • Same Namespace so matched-geometry IDs remain consistent.
 //   • Same AllieGlow layered behind ReviewButton.
-//
-//  `centerMorph` notes: relies on `QuickAmountChip` and `ReviewButton`
-//  being sized via padding (no rigid `.frame(width:height:)`), so the
-//  matched capsule can interpolate its frame end-to-end. The default
-//  opacity transition is intentional — it's the duration window MGE
-//  uses to animate. Substituting `.transition(.identity)` would close
-//  that window and snap the morph.
 //
 
 import DesignSystem
@@ -39,6 +27,12 @@ public enum CTAMorphStyle: String, CaseIterable, Identifiable, Sendable {
     /// Chips fade and drop a few points; Review slides up from below
     /// with the glow blooming behind it. Two-beat, most cinematic.
     case swoop
+
+    /// Single-view morph: the middle slot is a `MorphingCTA` whose
+    /// `progress: Double` drives every channel (width, fill, foreground,
+    /// label opacity, padding) under one spring. Side chips collapse their
+    /// width to zero so the HStack reflow grows the middle naturally.
+    case morphingView
 
     public var id: String { rawValue }
 }
@@ -69,15 +63,32 @@ public struct CTAMorph: View {
     }
 
     public var body: some View {
-        ZStack {
-            if showChips {
-                chips
+        Group {
+            if style == .morphingView {
+                morphingRow
             } else {
-                review
+                ZStack {
+                    if showChips {
+                        chips
+                    } else {
+                        review
+                    }
+                }
             }
         }
         .frame(height: 50, alignment: .center)
         .animation(spring.speed(0.6), value: showChips)
+    }
+
+    // Delegates to the shipped `QuickAmountCTA` so the harness A/Bs
+    // against production, not a copy.
+    private var morphingRow: some View {
+        QuickAmountCTA(
+            showChips: showChips,
+            canReview: canReview,
+            onChipTap: onChipTap,
+            onReview: onReview
+        )
     }
 
     private var spring: Animation {
@@ -120,6 +131,10 @@ public struct CTAMorph: View {
                 chip(10_000)
             }
             .transition(.move(edge: .top).combined(with: .opacity))
+
+        case .morphingView:
+            // Handled by `morphingRow`, never reached here.
+            EmptyView()
         }
     }
 
@@ -164,6 +179,10 @@ public struct CTAMorph: View {
         case .swoop:
             reviewLayered
                 .transition(.move(edge: .bottom).combined(with: .opacity))
+
+        case .morphingView:
+            // Handled by `morphingRow`, never reached here.
+            EmptyView()
         }
     }
 

@@ -4,18 +4,12 @@
 //
 //  Created by Abraham Duran on 20/5/26.
 //
-//  Brand-gradient halo rendered behind the Review pill. Two layers
-//  a wide, diffuse outer wash for depth and a tighter inner ring with
-//  the rotating gradient both driven by a single TimelineView so
-//  they share a clock and pause cleanly when the view leaves screen.
+//  Brand-gradient halo behind the Review pill. Two stacked layers — a
+//  wide outer wash and a tighter inner ring — both driven by a single
+//  `TimelineView` so they share a clock and pause when offscreen.
 //
-//  Two gradient styles ship side-by-side:
-//    • `.angular`, conic rotation. Cheap, predictable, ships by default.
-//    • `.mesh`, MeshGradient with drifting control points. More
-//      organic, more expensive, kept as an opt-in.
-//
-//  Pure SwiftUI; no Timer, no @State. Battery cost is zero while the
-//  view is offscreen because TimelineView stops ticking automatically.
+//  Styles: `.angular` (conic rotation, cheap, default) and `.mesh`
+//  (MeshGradient with drifting control points, opt-in).
 //
 
 import DesignSystem
