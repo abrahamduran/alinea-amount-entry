@@ -19,18 +19,33 @@ public struct AmountDisplay: View {
     }
 
     public var body: some View {
-        HStack(alignment: .center, spacing: 4) {
-            Text(isEmpty ? "$0" : amount)
-                .typography(.displayAmount)
-                .foregroundStyle(isEmpty ? .textPlaceholder : .textPrimary)
-                .lineLimit(1)
-                .minimumScaleFactor(0.3)
+        ZStack {
+            if isEmpty {
+                placeholder
+                    .transition(.opacity.combined(with: .scale(scale: 1.04)))
+            }
+            HStack(alignment: .center, spacing: 4) {
+                Text(amount)
+                    .typography(.displayAmount)
+                    .foregroundStyle(.textPrimary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.3)
+                    .contentTransition(.numericText())
 
-            BlinkingCaret()
+                BlinkingCaret()
+            }
         }
+        .animation(.smooth(duration: 0.25), value: isEmpty)
+        .animation(.snappy(duration: 0.2), value: amount)
         .accessibilityElement(children: .combine)
         .accessibilityLabel("Amount")
         .accessibilityValue(isEmpty ? "Zero dollars" : amount)
+    }
+
+    private var placeholder: some View {
+        Text("$0")
+            .typography(.displayAmount)
+            .foregroundStyle(.textPlaceholder)
     }
 }
 

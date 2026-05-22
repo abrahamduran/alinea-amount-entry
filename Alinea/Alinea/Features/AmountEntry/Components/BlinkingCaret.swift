@@ -15,18 +15,25 @@ public struct BlinkingCaret: View {
 
     public var width: CGFloat = 3
     public var height: CGFloat = 106
+    public var cornerRadius: CGFloat = 1.5
     public var period: TimeInterval = 0.5
 
-    public init(width: CGFloat = 3, height: CGFloat = 106, period: TimeInterval = 0.5) {
+    public init(
+        width: CGFloat = 3,
+        height: CGFloat = 106,
+        cornerRadius: CGFloat = 1.5,
+        period: TimeInterval = 0.5
+    ) {
         self.width = width
         self.height = height
+        self.cornerRadius = cornerRadius
         self.period = period
     }
 
     public var body: some View {
         TimelineView(.periodic(from: .now, by: period)) { ctx in
             let phase = Int(ctx.date.timeIntervalSinceReferenceDate / period) % 2
-            Rectangle()
+            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                 .fill(.textPrimary)
                 .frame(width: width, height: height)
                 .opacity(phase == 0 ? 1 : 0)
