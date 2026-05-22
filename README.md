@@ -8,21 +8,6 @@ no third-party dependencies.
 
 ---
 
-## Demo
-
-> Drop in once recorded:
->
-> - `Media/morph.gif` — chips → Review morph and back
-> - `Media/glow.gif` — Allie halo (mesh + drift)
-> - `Media/screenshot.png` — empty and filled states side-by-side
-
-```markdown
-![Morph](Media/morph.gif)
-![Glow](Media/glow.gif)
-```
-
----
-
 ## Build & run
 
 Open `Alinea/Alinea.xcodeproj`, select the `Alinea` scheme, run on an
