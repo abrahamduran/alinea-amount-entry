@@ -75,7 +75,8 @@ public struct MorphingCTA: View {
             .padding(.horizontal, 24)
             .padding(.vertical, vPad)
             .frame(maxWidth: .infinity)
-            .background(Capsule().fill(fill))
+            .glassEffect(.regular, in: .capsule)
+            .background(fill, in: .capsule)
             .contentShape(.capsule)
         }
         .buttonStyle(.plain)
@@ -113,7 +114,7 @@ public struct MorphingCTA: View {
             onChipTap: { on = true },
             onReview: { on = false }
         )
-        .animation(.spring(response: 0.45, dampingFraction: 0.82).speed(0.6), value: on)
+        .animation(.spring(response: 0.45, dampingFraction: 0.82).speed(0.8), value: on)
         .padding(.horizontal, 24)
 
         Spacer()

@@ -62,7 +62,7 @@ public struct QuickAmountCTA: View {
     }
 
     private static let spring: Animation =
-        .spring(response: 0.45, dampingFraction: 0.82).speed(0.6)
+        .spring(response: 0.45, dampingFraction: 0.82).speed(0.8)
 
     // MARK: Morphing layout
 
