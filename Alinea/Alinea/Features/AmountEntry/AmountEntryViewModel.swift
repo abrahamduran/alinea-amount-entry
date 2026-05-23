@@ -31,6 +31,7 @@ public final class AmountEntryViewModel {
     public var canReview: Bool { input.canReview }
     public var isDecimalDisabled: Bool { input.isDecimalDisabled }
     public var isBackspaceDisabled: Bool { input.isBackspaceDisabled }
+    public var isDigitDisabled: Bool { input.isDigitDisabled }
 
     // MARK: Intents
 

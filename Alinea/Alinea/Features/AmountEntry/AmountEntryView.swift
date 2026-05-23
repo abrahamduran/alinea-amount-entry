@@ -49,6 +49,7 @@ public struct AmountEntryView: View {
                 NumberPad(
                     isDecimalDisabled: vm.isDecimalDisabled,
                     isBackspaceDisabled: vm.isBackspaceDisabled,
+                    isDigitDisabled: vm.isDigitDisabled,
                     onTap: { vm.tap($0) }
                 )
                 .padding(.horizontal, 24)

@@ -12,15 +12,18 @@ public struct NumberPad: View {
 
     public let isDecimalDisabled: Bool
     public let isBackspaceDisabled: Bool
+    public let isDigitDisabled: Bool
     public let onTap: (NumberPadKey) -> Void
 
     public init(
         isDecimalDisabled: Bool,
         isBackspaceDisabled: Bool,
+        isDigitDisabled: Bool = false,
         onTap: @escaping (NumberPadKey) -> Void
     ) {
         self.isDecimalDisabled = isDecimalDisabled
         self.isBackspaceDisabled = isBackspaceDisabled
+        self.isDigitDisabled = isDigitDisabled
         self.onTap = onTap
     }
 
@@ -44,7 +47,7 @@ public struct NumberPad: View {
         switch key {
         case .decimal:   isDecimalDisabled
         case .backspace: isBackspaceDisabled
-        case .digit:     false
+        case .digit:     isDigitDisabled
         }
     }
 

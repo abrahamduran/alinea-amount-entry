@@ -15,6 +15,13 @@ public nonisolated struct AmountInputModel: Equatable, Sendable {
     /// Maximum decimal places allowed past the dot (per Ryan, May 20).
     public static let maxDecimalPlaces = 2
 
+    /// Maximum digits in the integer portion. Two roles: (a) keeps
+    /// the display from compressing into illegibility past
+    /// $999,999,999,999,999.99, and (b) prevents the formatter's
+    /// Int parsing path from overflowing Int64 (≈9.2 × 10¹⁸) and
+    /// silently resetting to `$0`.
+    public static let maxIntegerDigits = 15
+
     /// Raw entry buffer — digits, an optional `.`, up to 2 fractional digits.
     /// Never contains a leading zero (except the lone `"0."` form).
     public private(set) var enteredText: String = ""
@@ -26,6 +33,16 @@ public nonisolated struct AmountInputModel: Equatable, Sendable {
     public var isEmpty: Bool { enteredText.isEmpty }
     public var isDecimalDisabled: Bool { enteredText.contains(".") }
     public var isBackspaceDisabled: Bool { enteredText.isEmpty }
+
+    /// True when no further digit can be appended — either the integer
+    /// cap or the decimal cap has been reached.
+    public var isDigitDisabled: Bool {
+        if let dotIndex = enteredText.firstIndex(of: ".") {
+            let afterDot = enteredText.distance(from: dotIndex, to: enteredText.endIndex) - 1
+            return afterDot >= Self.maxDecimalPlaces
+        }
+        return enteredText.count >= Self.maxIntegerDigits
+    }
 
     /// Review CTA is enabled only when a positive amount has been entered.
     public var canReview: Bool {
@@ -51,6 +68,8 @@ public nonisolated struct AmountInputModel: Equatable, Sendable {
             enteredText.append(String(digit))
             return
         }
+
+        guard enteredText.count < Self.maxIntegerDigits else { return }
 
         if enteredText == "0" {
             // Replace the lone zero with the new digit.

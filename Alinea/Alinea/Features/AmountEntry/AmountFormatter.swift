@@ -29,8 +29,8 @@ public nonisolated enum AmountFormatter {
 
         let parts = raw.split(separator: ".", maxSplits: 1, omittingEmptySubsequences: false)
         let integerString = parts[0].isEmpty ? "0" : String(parts[0])
-        let integerValue = Int(integerString) ?? 0
-        let groupedInteger = integerValue.formatted(.number)
+        let integerDecimal = Decimal(string: integerString) ?? 0
+        let groupedInteger = integerDecimal.formatted(.number.grouping(.automatic))
 
         let decimalPart: String
         if parts.count > 1 {
