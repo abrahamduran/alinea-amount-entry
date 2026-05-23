@@ -108,6 +108,13 @@ Alinea/
   the feature code. Asset catalog uses namespaced folders; every
   color is reached via semantic enums (`Color.Background.screen`,
   `Color.Brand.gradientBlue`, etc.) — no inline hex in feature code.
+- **Why a local SPM package for one screen.** Genuine tension here —
+  one screen doesn't need a separate module. I kept it because (a)
+  it forces the design-system boundary so feature code can't reach
+  inline hex or font names, (b) `DesignSystem` previews compile
+  independently of feature code, and (c) the package's existence
+  is the obvious migration point if a second screen ever ships. If
+  this were genuinely one-screen-forever, I'd collapse it.
 
 ---
 
@@ -172,6 +179,17 @@ The deployment target was chosen to unlock:
   interpolation without manual RGBA decomposition.
 - **`MeshGradient`** (iOS 18+) — the bonus halo style.
 
+### Input limits
+
+The amount caps at 15 integer digits + two decimal places — up to
+`$999,999,999,999,999.99`. The cap lives in `AmountInputModel`
+(`maxIntegerDigits`) and digit keys disable visually when reached.
+Two reasons for the cap: (a) past 15 digits the display compresses
+into illegibility even with `minimumScaleFactor(0.3)`, and (b) the
+formatter's earlier `Int(_:)` parse path would overflow `Int64`
+past ~`$9.2 × 10¹⁸` (19 digits) and silently reset the display to
+`$0`. `AmountFormatter` now uses `Decimal` belt-and-suspenders.
+
 ### Customizing the chip amounts
 
 ```swift
@@ -191,24 +209,39 @@ the `leading / center / trailing` model and squeeze the slot
 widths below the chip's intrinsic text width — a horizontal
 carousel with a separate Review CTA would be the right redesign.
 
+### Performance notes
+
+The mesh halo combines `MeshGradient`, blur, and a per-frame
+`TimelineView` re-eval — visibly cheap on the iPhone 16/17 Pro
+simulators, but I haven't profiled it on a low-end device. The
+angular variant exists as a cheaper fallback for that reason.
+The morph itself re-evaluates `MorphingCTA.body` on every animation
+frame (that's how `@Animatable` works); body is small enough that
+this hasn't been a concern. In production I'd profile on an
+iPhone 13 mini or SE 3 and either auto-fall-back to angular below a
+device tier or gate the mesh path behind a feature flag.
+
 ---
 
 ## Out of scope
 
-Confirmed with Ryan during the brief — these are not evaluated and
-have been intentionally left light:
+### Cut by the brief
+- **Localization.** English only. Not evaluated.
+- **Light mode.** Figma is dark-only; no light appearance was
+  designed, so none was fabricated.
+- **Networking, persistence, real submit.** The Review tap is a no-op.
 
-- **Localization.** English only, no String Catalog.
-- **Light mode.** Figma is dark-only; no light appearance was designed,
-  so none was fabricated.
-- **Accessibility.** ~30 min of basic VoiceOver labels (chip,
-  back button, Review). No Dynamic Type tuning beyond defaults, no
-  Reduce Motion handling. The morph + halo are visual flourishes
-  that would need design input to adapt.
-- **Networking, persistence, real submit.** The Review action is a no-op.
-- **Input limits beyond two decimals.** Max two decimal places
-  (`2.00`), minimum `$0.01`, en-US only — per Ryan's correction on
-  May 20 (initially said four, narrowed to two).
+### Cut for time (would ship in production)
+- **Full accessibility.** ~30 min of basic VoiceOver labels (chip,
+  back, Review). No Dynamic Type tuning, no Reduce Motion fork —
+  see [What I'd do differently](#what-id-do-differently-in-production)
+  for the deeper a11y plan.
+- **Snapshot tests.** Considered, cut in favour of polish time on
+  the morph and halo. The `pointfreeco/swift-snapshot-testing` SPM
+  dep is the obvious next addition.
+- **Reduce Motion.** Skipped because adding it without designer
+  input meant inventing a design for what the reduced morph and
+  halo should look like.
 
 ---
 
@@ -224,6 +257,44 @@ have been intentionally left light:
 
 Snapshot tests were considered but cut in favour of polish time on
 the morph and halo.
+
+---
+
+## What I'd do differently in production
+
+A take-home maps badly onto a real prod feature; these are the
+specific places I'd invest more if the same screen shipped to users:
+
+- **Test depth.** Snapshot tests at fixed `progress` stops (0, 0.5,
+  1) on `MorphingCTA` and `QuickAmountCTA` would catch silent
+  visual regressions on iOS updates. UI tests would cover decimal
+  disable, leading-zero edge cases, and rapid tapping (no morph
+  race).
+- **Accessibility done properly.** Audit with VoiceOver, Voice
+  Control, Switch Control. Dynamic Type clamps on the display
+  amount. Reduce Motion fork on the morph and halo (cut here
+  because adding it without designer input meant inventing a
+  design). Verify all targets ≥ 44pt; the chip slots get close at
+  narrow widths.
+- **Localization.** `Decimal.FormatStyle.currency` with the user's
+  locale, locale-aware decimal separator on the keypad, String
+  Catalog for `Review` and any future copy. The custom
+  `AmountFormatter` would stay (its job is preserving in-progress
+  shapes), but its `","` group separator and `"."` decimal separator
+  would come from `Locale.current`, not be hard-coded en-US.
+- **Server-driven configuration.** Chip amounts (`QuickAmounts`),
+  min/max, currency code, allowed decimal places — all backend
+  config, not constants.
+- **Real Review action.** Loading state inside the pill, error toast
+  on failure, retry. Disable the keypad during the request.
+- **Performance gating.** The mesh halo + blur is genuinely
+  expensive; I'd profile on a low-end device and either
+  auto-fall-back to angular or feature-flag the mesh path.
+- **Analytics.** Every keypad tap, chip selection, morph completion,
+  Review tap with the entered value.
+- **CTAMorph would be deleted.** It exists in this submission so
+  the design decision is reviewable; in prod it'd come out with
+  the chosen variant inlined into `QuickAmountCTA`.
 
 ---
 
