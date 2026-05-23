@@ -14,6 +14,8 @@ public struct NumberPadButton: View {
     public let isDisabled: Bool
     public let action: () -> Void
 
+    @State private var holdTask: Task<Void, Never>?
+
     public init(key: NumberPadKey, isDisabled: Bool = false, action: @escaping () -> Void) {
         self.key = key
         self.isDisabled = isDisabled
@@ -21,6 +23,17 @@ public struct NumberPadButton: View {
     }
 
     public var body: some View {
+        switch key {
+        case .backspace:
+            backspaceContent
+        default:
+            tapButton
+        }
+    }
+
+    // MARK: Regular tap (digits and decimal)
+
+    private var tapButton: some View {
         Button(action: action) {
             label
                 .typography(.keypadDigit)
@@ -35,6 +48,50 @@ public struct NumberPadButton: View {
         .accessibilityLabel(accessibilityLabel)
         .accessibilityAddTraits(.isKeyboardKey)
     }
+
+    // MARK: Hold-to-repeat (backspace)
+    //
+    // First tap fires immediately on touch-down (responsive feel),
+    // then a 400ms hold threshold starts a repeat at ~14 Hz. Using a
+    // DragGesture(minimumDistance: 0) rather than a Button so we own
+    // the press/release lifecycle and can cancel the loop cleanly.
+
+    private var backspaceContent: some View {
+        label
+            .typography(.keypadDigit)
+            .foregroundStyle(.textPrimary)
+            .frame(maxWidth: .infinity, minHeight: 56)
+            .contentShape(.rect)
+            .opacity(isDisabled ? 0.35 : 1)
+            .animation(.easeInOut(duration: 0.15), value: isDisabled)
+            .gesture(holdGesture)
+            .accessibilityElement()
+            .accessibilityLabel(accessibilityLabel)
+            .accessibilityAddTraits([.isButton, .isKeyboardKey])
+            .accessibilityAction { action() }
+    }
+
+    private var holdGesture: some Gesture {
+        DragGesture(minimumDistance: 0)
+            .onChanged { _ in
+                guard !isDisabled, holdTask == nil else { return }
+                action()
+                holdTask = Task { @MainActor in
+                    try? await Task.sleep(for: .milliseconds(400))
+                    guard !Task.isCancelled else { return }
+                    while !Task.isCancelled {
+                        action()
+                        try? await Task.sleep(for: .milliseconds(70))
+                    }
+                }
+            }
+            .onEnded { _ in
+                holdTask?.cancel()
+                holdTask = nil
+            }
+    }
+
+    // MARK: Label + a11y
 
     @ViewBuilder
     private var label: some View {

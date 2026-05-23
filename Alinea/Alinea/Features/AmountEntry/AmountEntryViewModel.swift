@@ -36,12 +36,15 @@ public final class AmountEntryViewModel {
     // MARK: Intents
 
     public func tap(_ key: NumberPadKey) {
+        let before = input
         switch key {
         case .digit(let d): input.append(digit: d)
         case .decimal:      input.appendDecimal()
         case .backspace:    input.backspace()
         }
-        bumpTap()
+        // Only fire haptics when the model actually changed — keeps
+        // hold-to-repeat backspace from firing past the empty state.
+        if input != before { bumpTap() }
     }
 
     public func tap(quickAmount amount: Int) {
